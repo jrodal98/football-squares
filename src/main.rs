@@ -13,22 +13,36 @@ fn solution(input: &str) {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Board {
     cost_per_square: u64,
-    payout: HashMap<String, Payout>,
-    grid: HashMap<String, Grid>,
+    payout: PayoutBlock,
+    grid: GridBlock,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+enum PayoutBlock {
+    Map(HashMap<String, Payout>),
+    // MapMap(HashMap<String, PayoutBlock>),
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 enum Payout {
-    Integer(u64),
-    Map(HashMap<String, Payout>),
+    Integer(u32),
+    Map(HashMap<String, u32>),
 }
+
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-enum Grid {
-    Array([u32; 10]),
+enum GridBlock {
+    Grid(Grid),
     Map(HashMap<String, Grid>),
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Grid {
+    afc: [u32; 10],
+    nfc: [u32; 10],
 }
 
 #[test]
