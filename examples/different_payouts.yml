@@ -1,0 +1,15 @@
+cost_per_square: 5
+payout:
+  direct_hit:
+    Quarter1: 400
+    Warning1: 100
+    Quarter2: 400
+    Quarter3: 400
+    Warning2: 100
+    Final: 600
+  three_way_touch: 150
+  five_way_touch: 90
+  eight_way_touch: 55
+grid:
+  afc: [0, 8, 9, 6, 3, 2, 5, 1, 4, 7]
+  nfc: [4, 8, 5, 0, 3, 1, 9, 6, 2, 7]

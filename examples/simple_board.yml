@@ -1,0 +1,6 @@
+cost_per_square: 5
+payout:
+  direct_hit: 125
+grid:
+  afc: [0, 8, 9, 6, 3, 2, 5, 1, 4, 7]
+  nfc: [4, 8, 5, 0, 3, 1, 9, 6, 2, 7]
