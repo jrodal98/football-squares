@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::entities::{
-    Board, Coordinate, Event, EventSummary, Game, GameBlock, PayoutType, Score, WinningCoordinate,
+    Board, Coordinate, Event, EventSummary, Game, GameBlock, PayoutType, PlayerSummary,
+    PlayersBlock, Score, WinningCoordinate,
 };
 
 #[test]
@@ -32,6 +33,18 @@ fn test_multiple_games() {
 fn test_complex() {
     let board_str = include_str!("../examples/complex.yml");
     serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+}
+
+#[test]
+fn test_simple_player() {
+    let players_str = include_str!("../examples/simple_player.yml");
+    serde_yaml::from_str::<PlayersBlock>(players_str).unwrap();
+}
+
+#[test]
+fn test_multiple_players() {
+    let players_str = include_str!("../examples/multiple_players.yml");
+    serde_yaml::from_str::<PlayersBlock>(players_str).unwrap();
 }
 
 #[test]
@@ -394,7 +407,7 @@ fn test_get_winner_values_by_game_multiple_games() {
     expected_result.insert("game2".to_string(), expected_winners2);
 
     assert_eq!(
-        game_block.get_winner_values_per_game(score, &event),
+        game_block.get_winner_values_per_game(&score, &event),
         expected_result
     );
 }
@@ -414,7 +427,7 @@ fn test_get_winner_values_by_game_simple_board() {
     expected_result.insert("game1".to_string(), expected_winners1);
 
     assert_eq!(
-        game_block.get_winner_values_per_game(score, &event),
+        game_block.get_winner_values_per_game(&score, &event),
         expected_result
     );
 }
@@ -440,7 +453,108 @@ fn test_summarize_events() {
     };
 
     assert_eq!(
-        game_block.summarize_event(score, event, &coordinates),
+        game_block.summarize_event(&score, &event, &coordinates),
         expected_summary
+    );
+}
+
+#[test]
+fn test_summarize_player_simple() {
+    let board_str = include_str!("../examples/complex.yml");
+    let game_block = serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+    let players_str = include_str!("../examples/simple_player.yml");
+    let players_block = serde_yaml::from_str::<PlayersBlock>(players_str).unwrap();
+
+    let score = Score::new(6, 12);
+    let event = Event::Quarter1;
+
+    let expected_event_summary = EventSummary {
+        event: Event::Quarter1,
+        games_won: vec!["game1".to_string(), "game3".to_string()],
+        amount_won: 525,
+    };
+    let expected_player_summary = vec![PlayerSummary {
+        player_name: "player1".to_string(),
+        event_summary: expected_event_summary,
+    }];
+
+    assert_eq!(
+        players_block.summarize_event(&game_block, score, event),
+        expected_player_summary
+    );
+}
+
+#[test]
+fn test_summarize_multiple_players() {
+    let board_str = include_str!("../examples/complex.yml");
+    let game_block = serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+    let players_str = include_str!("../examples/multiple_players.yml");
+    let players_block = serde_yaml::from_str::<PlayersBlock>(players_str).unwrap();
+
+    let score = Score::new(6, 12);
+    let event = Event::Quarter1;
+
+    let expected_player_summary = vec![
+        PlayerSummary {
+            player_name: "becca".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+        PlayerSummary {
+            player_name: "candy".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+        PlayerSummary {
+            player_name: "jake".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec!["game1".to_string(), "game3".to_string()],
+                amount_won: 525,
+            },
+        },
+        PlayerSummary {
+            player_name: "jc".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+        PlayerSummary {
+            player_name: "john".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+        PlayerSummary {
+            player_name: "lily".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+        PlayerSummary {
+            player_name: "pebbles".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec![],
+                amount_won: 0,
+            },
+        },
+    ];
+
+    assert_eq!(
+        players_block.summarize_event(&game_block, score, event),
+        expected_player_summary
     );
 }

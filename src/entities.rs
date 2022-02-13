@@ -5,13 +5,55 @@ use std::collections::{HashMap, HashSet};
 #[serde(untagged)]
 pub enum GameBlock {
     Game(Game),
-    Map(HashMap<String, Game>),
+    // game name -> game
+    NameToGame(HashMap<String, Game>),
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PlayersBlock {
+    // game name -> coordinates
+    Games(HashMap<String, Vec<Coordinate>>),
+    // player name -> { game name -> coordinates }
+    PlayerToGames(HashMap<String, HashMap<String, Vec<Coordinate>>>),
+}
+
+impl PlayersBlock {
+    pub fn summarize_event(
+        &self,
+        gameblock: &GameBlock,
+        score: Score,
+        event: Event,
+    ) -> Vec<PlayerSummary> {
+        let mut summaries = match self {
+            PlayersBlock::Games(game_to_coordinates) => vec![PlayerSummary {
+                player_name: "player1".to_string(),
+                event_summary: gameblock.summarize_event(&score, &event, game_to_coordinates),
+            }],
+            PlayersBlock::PlayerToGames(player_to_games) => player_to_games
+                .iter()
+                .map(|(player_name, game_to_coordinates)| PlayerSummary {
+                    player_name: player_name.to_string(),
+                    event_summary: gameblock.summarize_event(&score, &event, game_to_coordinates),
+                })
+                .collect(),
+        };
+
+        summaries.sort_by_key(|summary| summary.player_name.to_string());
+        summaries
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct PlayerSummary {
+    pub player_name: String,
+    pub event_summary: EventSummary,
 }
 
 impl GameBlock {
     pub fn get_winner_values_per_game(
         &self,
-        score: Score,
+        score: &Score,
         event: &Event,
     ) -> HashMap<String, HashMap<Coordinate, u64>> {
         match self {
@@ -23,27 +65,28 @@ impl GameBlock {
                 );
                 winners
             }
-            Self::Map(map) => map
-                .iter()
-                .fold(HashMap::new(), |mut acc, (game_name, game)| {
-                    acc.insert(
-                        game_name.to_string(),
-                        game.calculate_winner_values(&score, event),
-                    );
-                    acc
-                }),
+            Self::NameToGame(map) => {
+                map.iter()
+                    .fold(HashMap::new(), |mut acc, (game_name, game)| {
+                        acc.insert(
+                            game_name.to_string(),
+                            game.calculate_winner_values(&score, event),
+                        );
+                        acc
+                    })
+            }
         }
     }
 
     pub fn summarize_event(
         &self,
-        score: Score,
-        event: Event,
+        score: &Score,
+        event: &Event,
         coordinates: &HashMap<String, Vec<Coordinate>>,
     ) -> EventSummary {
         let mut amount_won = 0;
         let mut games_won = vec![];
-        let winners = self.get_winner_values_per_game(score, &event);
+        let winners = self.get_winner_values_per_game(score, event);
         for (game_name, coordinates) in coordinates.iter() {
             if let Some(game_winners) = winners.get(game_name) {
                 for coordinate in coordinates
@@ -59,8 +102,9 @@ impl GameBlock {
             }
         }
 
+        games_won.sort();
         EventSummary {
-            event,
+            event: *event,
             games_won,
             amount_won,
         }
@@ -137,7 +181,7 @@ impl BoardBlock {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum Event {
     Quarter1,
@@ -182,7 +226,7 @@ pub struct Score {
     nfc: u64,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct Coordinate {
     x: u64,
     y: u64,
