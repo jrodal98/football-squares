@@ -16,28 +16,39 @@ pub struct Game {
 }
 
 impl Game {
-    // pub fn calculate_payouts(
-    //     &self,
-    //     score: Score,
-    //     event: Event,
-    //     coordinates: Vec<Coordinate>,
-    // ) -> HashMap<Coordinate, u64> {
-    //     let winners = self.board.get_winners(score, event);
-    // }
+    pub fn calculate_winner_values(
+        &self,
+        score: Score,
+        event: Event,
+    ) -> HashMap<Coordinate, u64> {
+        let winners = self.board.get_winners(score, &event);
+        winners
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, winning_coordinate| {
+                acc.insert(
+                    winning_coordinate.coordinate,
+                    self.payout
+                        .get(&winning_coordinate.payout_type)
+                        .unwrap()
+                        .get_payout(&event),
+                );
+                acc
+            })
+    }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Payout {
-    Integer(u32),
-    Map(HashMap<Event, u32>),
+    Integer(u64),
+    Map(HashMap<Event, u64>),
 }
 
 impl Payout {
-    fn get_payout(&self, event: Event) -> u32 {
+    fn get_payout(&self, event: &Event) -> u64 {
         match self {
             Self::Integer(x) => *x,
-            Self::Map(map) => *map.get(&event).unwrap(),
+            Self::Map(map) => *map.get(event).unwrap(),
         }
     }
 }
@@ -50,10 +61,10 @@ pub enum BoardBlock {
 }
 
 impl BoardBlock {
-    pub fn get_winners(&self, score: Score, event: Event) -> Vec<WinningCoordinate> {
+    pub fn get_winners(&self, score: Score, event: &Event) -> Vec<WinningCoordinate> {
         match self {
             Self::Board(board) => board.get_winning_coordinates(score),
-            Self::Map(map) => map.get(&event).unwrap().get_winning_coordinates(score),
+            Self::Map(map) => map.get(event).unwrap().get_winning_coordinates(score),
         }
     }
 }
