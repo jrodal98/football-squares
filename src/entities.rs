@@ -44,6 +44,18 @@ impl PlayersBlock {
     }
 }
 
+#[derive(Debug)]
+pub struct ScoreEvent {
+    pub score: Score,
+    pub event: Event,
+}
+
+impl ScoreEvent {
+    pub fn new(score: Score, event: Event) -> Self {
+        Self { score, event }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct PlayerGameSummary {
     pub player_name: String,
