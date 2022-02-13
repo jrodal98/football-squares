@@ -5,6 +5,7 @@ payout:
     warning1: 100
     quarter2: 400
     quarter3: 400
+    quarter4: 400
     warning2: 100
     final: 600
   three_way_touch: 150

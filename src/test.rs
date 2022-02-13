@@ -1,4 +1,8 @@
-use crate::entities::{Board, Coordinate, GameBlock, PayoutType, Score, WinningCoordinate};
+use std::collections::HashMap;
+
+use crate::entities::{
+    Board, Coordinate, Event, Game, GameBlock, PayoutType, Score, WinningCoordinate,
+};
 
 #[test]
 fn test_simple_board() {
@@ -177,4 +181,157 @@ fn test_get_winning_coordinates() {
         },
     ];
     assert_eq!(board.get_winning_coordinates(score), winning_coordinates);
+}
+
+#[test]
+fn test_simple_board_winner_values() {
+    let board_str = include_str!("../examples/simple_board.yml");
+    let game = serde_yaml::from_str::<Game>(board_str).unwrap();
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+
+    let mut expected_winners = HashMap::new();
+
+    expected_winners.insert(Coordinate::new(5, 1), 125);
+
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+}
+
+#[test]
+fn test_different_payouts_winner_values() {
+    let board_str = include_str!("../examples/different_payouts.yml");
+    let game = serde_yaml::from_str::<Game>(board_str).unwrap();
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 400);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Warning1;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 100);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter2;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 400);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter3;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 400);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Warning2;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 100);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter4;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 400);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Final;
+    let direct_hit = Coordinate::new(5, 1);
+    let mut expected_winners =
+        direct_hit
+            .get_neighbors()
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, coordinate| {
+                acc.insert(coordinate, 55);
+                acc
+            });
+    expected_winners.insert(direct_hit, 600);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+}
+
+#[test]
+fn test_different_boards_winner_values() {
+    let board_str = include_str!("../examples/different_boards.yml");
+    let game = serde_yaml::from_str::<Game>(board_str).unwrap();
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+    let mut expected_winners = HashMap::new();
+    expected_winners.insert(Coordinate::new(7, 0), 800);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter2;
+    let mut expected_winners = HashMap::new();
+    expected_winners.insert(Coordinate::new(9, 2), 800);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter3;
+    let mut expected_winners = HashMap::new();
+    expected_winners.insert(Coordinate::new(4, 3), 800);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Final;
+    let mut expected_winners = HashMap::new();
+    expected_winners.insert(Coordinate::new(7, 8), 800);
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+
+    let score = Score::new(32, 48);
+    let event = Event::Warning1;
+    let expected_winners = HashMap::new();
+    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
 }

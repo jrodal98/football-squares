@@ -1,9 +1,6 @@
 cost_per_square: 50
 payout:
   direct_hit: 800
-  three_way_touch: 150
-  five_way_touch: 90
-  eight_way_touch: 55
 board:
   quarter1:
     afc: [1, 8, 9, 0, 3, 6, 4, 2, 5, 7]
