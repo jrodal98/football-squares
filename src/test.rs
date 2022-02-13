@@ -24,7 +24,7 @@ fn test_different_board() {
 
 #[test]
 fn test_multiple_games() {
-    let board_str = include_str!("../examples/different_boards.yml");
+    let board_str = include_str!("../examples/multiple_games.yml");
     serde_yaml::from_str::<GameBlock>(board_str).unwrap();
 }
 
@@ -180,7 +180,7 @@ fn test_get_winning_coordinates() {
             payout_type: PayoutType::EightWayTouch,
         },
     ];
-    assert_eq!(board.get_winning_coordinates(score), winning_coordinates);
+    assert_eq!(board.get_winning_coordinates(&score), winning_coordinates);
 }
 
 #[test]
@@ -194,7 +194,10 @@ fn test_simple_board_winner_values() {
 
     expected_winners.insert(Coordinate::new(5, 1), 125);
 
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 }
 
 #[test]
@@ -214,7 +217,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 400);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Warning1;
@@ -228,7 +234,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 100);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Quarter2;
@@ -242,7 +251,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 400);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Quarter3;
@@ -256,7 +268,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 400);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Warning2;
@@ -270,7 +285,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 100);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Quarter4;
@@ -284,7 +302,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 400);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Final;
@@ -298,7 +319,10 @@ fn test_different_payouts_winner_values() {
                 acc
             });
     expected_winners.insert(direct_hit, 600);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 }
 
 #[test]
@@ -310,28 +334,87 @@ fn test_different_boards_winner_values() {
     let event = Event::Quarter1;
     let mut expected_winners = HashMap::new();
     expected_winners.insert(Coordinate::new(7, 0), 800);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Quarter2;
     let mut expected_winners = HashMap::new();
     expected_winners.insert(Coordinate::new(9, 2), 800);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Quarter3;
     let mut expected_winners = HashMap::new();
     expected_winners.insert(Coordinate::new(4, 3), 800);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Final;
     let mut expected_winners = HashMap::new();
     expected_winners.insert(Coordinate::new(7, 8), 800);
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
 
     let score = Score::new(32, 48);
     let event = Event::Warning1;
     let expected_winners = HashMap::new();
-    assert_eq!(game.calculate_winner_values(score, event), expected_winners);
+    assert_eq!(
+        game.calculate_winner_values(&score, &event),
+        expected_winners
+    );
+}
+
+#[test]
+fn test_get_winner_values_by_game_multiple_games() {
+    let board_str = include_str!("../examples/multiple_games.yml");
+    let game_block = serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+
+    let mut expected_winners1 = HashMap::new();
+    expected_winners1.insert(Coordinate::new(5, 1), 125);
+
+    let mut expected_winners2 = HashMap::new();
+    expected_winners2.insert(Coordinate::new(5, 1), 125);
+
+    let mut expected_result = HashMap::new();
+    expected_result.insert("game1".to_string(), expected_winners1);
+    expected_result.insert("game2".to_string(), expected_winners2);
+
+    assert_eq!(
+        game_block.get_winner_values_per_game(score, event),
+        expected_result
+    );
+}
+
+#[test]
+fn test_get_winner_values_by_game_simple_board() {
+    let board_str = include_str!("../examples/simple_board.yml");
+    let game_block = serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+
+    let mut expected_winners1 = HashMap::new();
+    expected_winners1.insert(Coordinate::new(5, 1), 125);
+
+    let mut expected_result = HashMap::new();
+    expected_result.insert("game1".to_string(), expected_winners1);
+
+    assert_eq!(
+        game_block.get_winner_values_per_game(score, event),
+        expected_result
+    );
 }

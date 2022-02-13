@@ -8,6 +8,34 @@ pub enum GameBlock {
     Map(HashMap<String, Game>),
 }
 
+impl GameBlock {
+    pub fn get_winner_values_per_game(
+        &self,
+        score: Score,
+        event: Event,
+    ) -> HashMap<String, HashMap<Coordinate, u64>> {
+        match self {
+            Self::Game(game) => {
+                let mut winners = HashMap::new();
+                winners.insert(
+                    "game1".to_string(),
+                    game.calculate_winner_values(&score, &event),
+                );
+                winners
+            }
+            Self::Map(map) => map
+                .iter()
+                .fold(HashMap::new(), |mut acc, (game_name, game)| {
+                    acc.insert(
+                        game_name.to_string(),
+                        game.calculate_winner_values(&score, &event),
+                    );
+                    acc
+                }),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Game {
     cost_per_square: u64,
@@ -16,8 +44,12 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn calculate_winner_values(&self, score: Score, event: Event) -> HashMap<Coordinate, u64> {
-        let winners = self.board.get_winners(score, &event);
+    pub fn calculate_winner_values(
+        &self,
+        score: &Score,
+        event: &Event,
+    ) -> HashMap<Coordinate, u64> {
+        let winners = self.board.get_winners(&score, &event);
         winners
             .into_iter()
             .fold(HashMap::new(), |mut acc, winning_coordinate| {
@@ -56,7 +88,7 @@ pub enum BoardBlock {
 }
 
 impl BoardBlock {
-    pub fn get_winners(&self, score: Score, event: &Event) -> Vec<WinningCoordinate> {
+    pub fn get_winners(&self, score: &Score, event: &Event) -> Vec<WinningCoordinate> {
         match self {
             Self::Board(board) => board.get_winning_coordinates(score),
             Self::Map(map) => match map.get(event) {
@@ -134,7 +166,7 @@ impl Score {
 }
 
 impl Board {
-    pub fn get_winning_coordinates(&self, score: Score) -> Vec<WinningCoordinate> {
+    pub fn get_winning_coordinates(&self, score: &Score) -> Vec<WinningCoordinate> {
         let x = self
             .afc
             .iter()
