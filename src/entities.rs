@@ -24,15 +24,15 @@ impl PlayersBlock {
         gameblock: &GameBlock,
         score: Score,
         event: Event,
-    ) -> Vec<PlayerSummary> {
+    ) -> Vec<PlayerEventSummary> {
         let mut summaries = match self {
-            PlayersBlock::Games(game_to_coordinates) => vec![PlayerSummary {
+            PlayersBlock::Games(game_to_coordinates) => vec![PlayerEventSummary {
                 player_name: "player1".to_string(),
                 event_summary: gameblock.summarize_event(&score, &event, game_to_coordinates),
             }],
             PlayersBlock::PlayerToGames(player_to_games) => player_to_games
                 .iter()
-                .map(|(player_name, game_to_coordinates)| PlayerSummary {
+                .map(|(player_name, game_to_coordinates)| PlayerEventSummary {
                     player_name: player_name.to_string(),
                     event_summary: gameblock.summarize_event(&score, &event, game_to_coordinates),
                 })
@@ -45,13 +45,60 @@ impl PlayersBlock {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct PlayerSummary {
+pub struct PlayerGameSummary {
+    pub player_name: String,
+    pub winning_events: Vec<Event>,
+    pub winning_games: Vec<String>,
+    pub amount_won: u64,
+}
+
+impl PlayerGameSummary {
+    pub fn new_empty_summary(player_name: String) -> Self {
+        Self {
+            player_name,
+            winning_events: vec![],
+            winning_games: vec![],
+            amount_won: 0,
+        }
+    }
+    pub fn summarize_player_events(
+        player_event_summaries: Vec<PlayerEventSummary>,
+    ) -> Vec<PlayerGameSummary> {
+        // let player_to_event_summaries = HashMap::new();
+        let mut summaries = player_event_summaries
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, player_event_summary| {
+                acc.entry(player_event_summary.player_name.to_string())
+                    .or_insert(PlayerGameSummary::new_empty_summary(
+                        player_event_summary.player_name.to_string(),
+                    ))
+                    .extend(player_event_summary);
+                acc
+            })
+            .into_values()
+            .collect::<Vec<_>>();
+
+        summaries.sort_by_key(|summary| summary.player_name.to_string());
+        summaries
+    }
+
+    pub fn extend(&mut self, mut player_event_summary: PlayerEventSummary) {
+        self.winning_events
+            .push(player_event_summary.event_summary.event);
+        self.winning_games
+            .append(&mut player_event_summary.event_summary.games_won);
+        self.amount_won += player_event_summary.event_summary.amount_won;
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct PlayerEventSummary {
     pub player_name: String,
     pub event_summary: EventSummary,
 }
 
-impl PlayerSummary {
-    pub fn winners_only(summaries: Vec<PlayerSummary>) -> Vec<PlayerSummary> {
+impl PlayerEventSummary {
+    pub fn winners_only(summaries: Vec<PlayerEventSummary>) -> Vec<PlayerEventSummary> {
         summaries
             .into_iter()
             .filter(|player_summary| player_summary.event_summary.amount_won > 0)

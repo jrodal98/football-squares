@@ -3,7 +3,7 @@ mod test;
 
 use std::collections::HashMap;
 
-use entities::{Coordinate, Event, EventSummary, GameBlock, PlayerSummary, PlayersBlock, Score};
+use entities::{Coordinate, Event, EventSummary, GameBlock, PlayerEventSummary, PlayersBlock, Score};
 
 fn main() {
     let board_str = include_str!("../examples/complex.yml");
@@ -16,7 +16,7 @@ fn main() {
     let event = Event::Quarter1;
 
     let summaries =
-        PlayerSummary::winners_only(players_block.summarize_event(&game_block, score, event));
+        PlayerEventSummary::winners_only(players_block.summarize_event(&game_block, score, event));
     dbg!(summaries);
 
     // let total_won = summaries.iter().map(|e| e.amount_won).sum::<u64>();

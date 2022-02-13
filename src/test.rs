@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::entities::{
-    Board, Coordinate, Event, EventSummary, Game, GameBlock, PayoutType, PlayerSummary,
+    Board, Coordinate, Event, EventSummary, Game, GameBlock, PayoutType, PlayerEventSummary,
     PlayersBlock, Score, WinningCoordinate,
 };
 
@@ -473,7 +473,7 @@ fn test_summarize_player_simple() {
         games_won: vec!["game1".to_string(), "game3".to_string()],
         amount_won: 525,
     };
-    let expected_player_summary = vec![PlayerSummary {
+    let expected_player_summary = vec![PlayerEventSummary {
         player_name: "player1".to_string(),
         event_summary: expected_event_summary,
     }];
@@ -495,7 +495,7 @@ fn test_summarize_multiple_players() {
     let event = Event::Quarter1;
 
     let expected_player_summary = vec![
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "becca".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -503,7 +503,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 0,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "candy".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -511,7 +511,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 0,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "jake".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -519,7 +519,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 525,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "jc".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -527,7 +527,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 0,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "john".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -535,7 +535,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 0,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "lily".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -543,7 +543,7 @@ fn test_summarize_multiple_players() {
                 amount_won: 0,
             },
         },
-        PlayerSummary {
+        PlayerEventSummary {
             player_name: "pebbles".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
@@ -557,8 +557,8 @@ fn test_summarize_multiple_players() {
     assert_eq!(&players_summaries, &expected_player_summary);
 
     assert_eq!(
-        PlayerSummary::winners_only(players_summaries),
-        vec![PlayerSummary {
+        PlayerEventSummary::winners_only(players_summaries),
+        vec![PlayerEventSummary {
             player_name: "jake".to_string(),
             event_summary: EventSummary {
                 event: Event::Quarter1,
