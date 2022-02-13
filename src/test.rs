@@ -1,4 +1,4 @@
-use crate::entities::{Board, Coordinate, GameBlock, Score};
+use crate::entities::{Board, Coordinate, GameBlock, PayoutType, Score, WinningCoordinate};
 
 #[test]
 fn test_simple_board() {
@@ -132,13 +132,49 @@ fn test_get_neighbors_eight_touch() {
     assert_eq!(c.get_neighbors(), c_neighbors);
 }
 
-// #[test]
-// fn test_score_to_coordinate() {
-//     let afc = [0, 8, 9, 6, 3, 2, 5, 1, 4, 7];
-//     let nfc = [4, 8, 5, 0, 3, 1, 9, 6, 2, 7];
-//     let board = Board { afc, nfc };
-//     let score = Score::new(32, 48);
-//     let coordinate = Coordinate::new(5, 1);
-//
-//     assert_eq!(board.score_to_coordinate(score), coordinate);
-// }
+#[test]
+fn test_get_winning_coordinates() {
+    let afc = [0, 8, 9, 6, 3, 2, 5, 1, 4, 7];
+    let nfc = [4, 8, 5, 0, 3, 1, 9, 6, 2, 7];
+    let board = Board { afc, nfc };
+    let score = Score::new(32, 48);
+    let winning_coordinates = vec![
+        WinningCoordinate {
+            coordinate: Coordinate::new(5, 1),
+            payout_type: PayoutType::DirectHit,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(4, 0),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(4, 1),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(4, 2),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(5, 0),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(5, 2),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(6, 0),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(6, 1),
+            payout_type: PayoutType::EightWayTouch,
+        },
+        WinningCoordinate {
+            coordinate: Coordinate::new(6, 2),
+            payout_type: PayoutType::EightWayTouch,
+        },
+    ];
+    assert_eq!(board.get_winning_coordinates(score), winning_coordinates);
+}

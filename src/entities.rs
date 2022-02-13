@@ -163,10 +163,10 @@ impl Board {
     }
 }
 
-#[derive(Debug)]
-struct WinningCoordinate {
-    coordinate: Coordinate,
-    payout_type: PayoutType,
+#[derive(Debug, PartialEq, Eq)]
+pub struct WinningCoordinate {
+    pub coordinate: Coordinate,
+    pub payout_type: PayoutType,
 }
 
 impl Coordinate {
