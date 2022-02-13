@@ -10,6 +10,6 @@ payout:
   three_way_touch: 150
   five_way_touch: 90
   eight_way_touch: 55
-grid:
+board:
   afc: [0, 8, 9, 6, 3, 2, 5, 1, 4, 7]
   nfc: [4, 8, 5, 0, 3, 1, 9, 6, 2, 7]

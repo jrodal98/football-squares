@@ -2,19 +2,29 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 fn main() {
-    let input = include_str!("../example.yml");
+    // let input = include_str!("../example.yml");
+    let input = include_str!("../examples/different_payouts.yml");
     solution(input);
 }
 
 fn solution(input: &str) {
-    println!("{}", input)
+    let game = serde_yaml::from_str::<GameBlock>(input).unwrap();
+    dbg!(game);
+}
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+enum GameBlock {
+    Board(Game),
+    Map(HashMap<String, Game>),
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct Board {
+struct Game {
     cost_per_square: u64,
     payout: HashMap<PayoutType, Payout>,
-    grid: GridBlock,
+    board: BoardBlock,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -26,9 +36,9 @@ enum Payout {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-enum GridBlock {
-    Grid(Grid),
-    Map(HashMap<Event, Grid>),
+enum BoardBlock {
+    Board(Board),
+    Map(HashMap<Event, Board>),
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
@@ -53,25 +63,31 @@ enum PayoutType {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct Grid {
+struct Board {
     afc: [u32; 10],
     nfc: [u32; 10],
 }
 
 #[test]
-fn test_read_simple_board() {
+fn test_simple_board() {
     let board_str = include_str!("../examples/simple_board.yml");
-    let board: Board = serde_yaml::from_str(board_str).unwrap();
+    serde_yaml::from_str::<GameBlock>(board_str).unwrap();
 }
 
 #[test]
-fn test_read_different_payouts_board() {
+fn test_different_payouts() {
     let board_str = include_str!("../examples/different_payouts.yml");
-    let board: Board = serde_yaml::from_str(board_str).unwrap();
+    serde_yaml::from_str::<GameBlock>(board_str).unwrap();
 }
 
 #[test]
-fn test_read_different_grid_board() {
-    let board_str = include_str!("../examples/different_grids.yml");
-    let board: Board = serde_yaml::from_str(board_str).unwrap();
+fn test_different_board() {
+    let board_str = include_str!("../examples/different_boards.yml");
+    serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+}
+
+#[test]
+fn test_multiple_games() {
+    let board_str = include_str!("../examples/different_boards.yml");
+    serde_yaml::from_str::<GameBlock>(board_str).unwrap();
 }
