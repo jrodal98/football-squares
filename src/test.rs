@@ -1,4 +1,4 @@
-use crate::entities::{Coordinate, GameBlock};
+use crate::entities::{Board, Coordinate, GameBlock, Neighbors, Score};
 
 #[test]
 fn test_simple_board() {
@@ -41,85 +41,85 @@ fn test_coordinate_maximums() {
 #[test]
 fn test_get_neighbors_three_touch() {
     let c1 = Coordinate::new(0, 0);
-    let c1_neighbors = vec![
+    let c1_neighbors = Neighbors::new(vec![
         Coordinate::new(0, 1),
         Coordinate::new(1, 0),
         Coordinate::new(1, 1),
-    ];
+    ]);
     assert_eq!(c1.get_neighbors(), c1_neighbors);
 
     let c2 = Coordinate::new(0, 9);
-    let c2_neighbors = vec![
+    let c2_neighbors = Neighbors::new(vec![
         Coordinate::new(0, 8),
         Coordinate::new(1, 8),
         Coordinate::new(1, 9),
-    ];
+    ]);
     assert_eq!(c2.get_neighbors(), c2_neighbors);
 
     let c3 = Coordinate::new(9, 0);
-    let c3_neighbors = vec![
+    let c3_neighbors = Neighbors::new(vec![
         Coordinate::new(8, 0),
         Coordinate::new(8, 1),
         Coordinate::new(9, 1),
-    ];
+    ]);
     assert_eq!(c3.get_neighbors(), c3_neighbors);
 
     let c4 = Coordinate::new(9, 9);
-    let c4_neighbors = vec![
+    let c4_neighbors = Neighbors::new(vec![
         Coordinate::new(8, 8),
         Coordinate::new(8, 9),
         Coordinate::new(9, 8),
-    ];
+    ]);
     assert_eq!(c4.get_neighbors(), c4_neighbors);
 }
 
 #[test]
 fn test_get_neighbors_five_touch() {
     let c1 = Coordinate::new(5, 0);
-    let c1_neighbors = vec![
+    let c1_neighbors = Neighbors::new(vec![
         Coordinate::new(4, 0),
         Coordinate::new(4, 1),
         Coordinate::new(5, 1),
         Coordinate::new(6, 1),
         Coordinate::new(6, 0),
-    ];
+    ]);
     assert_eq!(c1.get_neighbors(), c1_neighbors);
 
     let c2 = Coordinate::new(0, 7);
-    let c2_neighbors = vec![
+    let c2_neighbors = Neighbors::new(vec![
         Coordinate::new(0, 6),
         Coordinate::new(0, 8),
         Coordinate::new(1, 6),
         Coordinate::new(1, 7),
         Coordinate::new(1, 8),
-    ];
+    ]);
     assert_eq!(c2.get_neighbors(), c2_neighbors);
 
     let c3 = Coordinate::new(9, 3);
-    let c3_neighbors = vec![
+    let c3_neighbors = Neighbors::new(vec![
         Coordinate::new(8, 2),
         Coordinate::new(8, 3),
         Coordinate::new(8, 4),
         Coordinate::new(9, 2),
         Coordinate::new(9, 4),
-    ];
+    ]);
     assert_eq!(c3.get_neighbors(), c3_neighbors);
 
     let c4 = Coordinate::new(4, 9);
-    let c4_neighbors = vec![
+    let c4_neighbors = Neighbors::new(vec![
         Coordinate::new(3, 8),
         Coordinate::new(3, 9),
         Coordinate::new(4, 8),
         Coordinate::new(5, 8),
         Coordinate::new(5, 9),
-    ];
+    ]);
     assert_eq!(c4.get_neighbors(), c4_neighbors);
 }
 
 #[test]
 fn test_get_neighbors_eight_touch() {
     let c = Coordinate::new(4, 7);
-    let c_neighbors = vec![
+    let c_neighbors = Neighbors::new(vec![
         Coordinate::new(3, 6),
         Coordinate::new(3, 7),
         Coordinate::new(3, 8),
@@ -128,6 +128,17 @@ fn test_get_neighbors_eight_touch() {
         Coordinate::new(5, 6),
         Coordinate::new(5, 7),
         Coordinate::new(5, 8),
-    ];
+    ]);
     assert_eq!(c.get_neighbors(), c_neighbors);
 }
+
+// #[test]
+// fn test_score_to_coordinate() {
+//     let afc = [0, 8, 9, 6, 3, 2, 5, 1, 4, 7];
+//     let nfc = [4, 8, 5, 0, 3, 1, 9, 6, 2, 7];
+//     let board = Board { afc, nfc };
+//     let score = Score::new(32, 48);
+//     let coordinate = Coordinate::new(5, 1);
+//
+//     assert_eq!(board.score_to_coordinate(score), coordinate);
+// }
