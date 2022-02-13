@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::entities::{
-    Board, Coordinate, Event, Game, GameBlock, PayoutType, Score, WinningCoordinate,
+    Board, Coordinate, Event, EventSummary, Game, GameBlock, PayoutType, Score, WinningCoordinate,
 };
 
 #[test]
@@ -394,7 +394,7 @@ fn test_get_winner_values_by_game_multiple_games() {
     expected_result.insert("game2".to_string(), expected_winners2);
 
     assert_eq!(
-        game_block.get_winner_values_per_game(score, event),
+        game_block.get_winner_values_per_game(score, &event),
         expected_result
     );
 }
@@ -414,7 +414,33 @@ fn test_get_winner_values_by_game_simple_board() {
     expected_result.insert("game1".to_string(), expected_winners1);
 
     assert_eq!(
-        game_block.get_winner_values_per_game(score, event),
+        game_block.get_winner_values_per_game(score, &event),
         expected_result
+    );
+}
+
+#[test]
+fn test_summarize_events() {
+    let board_str = include_str!("../examples/multiple_games.yml");
+    let game_block = serde_yaml::from_str::<GameBlock>(board_str).unwrap();
+
+    let score = Score::new(32, 48);
+    let event = Event::Quarter1;
+
+    let mut coordinates = HashMap::new();
+    // duplicates should be filtered out
+    let game1_coordinates = vec![Coordinate::new(5, 1), Coordinate::new(5, 1)];
+    let game2_coordinates = vec![Coordinate::new(5, 2)];
+    coordinates.insert("game1".to_string(), game1_coordinates);
+    coordinates.insert("game2".to_string(), game2_coordinates);
+    let expected_summary = EventSummary {
+        event: Event::Quarter1,
+        games_won: vec!["game1".to_string()],
+        amount_won: 125,
+    };
+
+    assert_eq!(
+        game_block.summarize_event(score, event, &coordinates),
+        expected_summary
     );
 }

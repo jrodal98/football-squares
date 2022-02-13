@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -12,14 +12,14 @@ impl GameBlock {
     pub fn get_winner_values_per_game(
         &self,
         score: Score,
-        event: Event,
+        event: &Event,
     ) -> HashMap<String, HashMap<Coordinate, u64>> {
         match self {
             Self::Game(game) => {
                 let mut winners = HashMap::new();
                 winners.insert(
                     "game1".to_string(),
-                    game.calculate_winner_values(&score, &event),
+                    game.calculate_winner_values(&score, event),
                 );
                 winners
             }
@@ -28,12 +28,50 @@ impl GameBlock {
                 .fold(HashMap::new(), |mut acc, (game_name, game)| {
                     acc.insert(
                         game_name.to_string(),
-                        game.calculate_winner_values(&score, &event),
+                        game.calculate_winner_values(&score, event),
                     );
                     acc
                 }),
         }
     }
+
+    pub fn summarize_event(
+        &self,
+        score: Score,
+        event: Event,
+        coordinates: &HashMap<String, Vec<Coordinate>>,
+    ) -> EventSummary {
+        let mut amount_won = 0;
+        let mut games_won = vec![];
+        let winners = self.get_winner_values_per_game(score, &event);
+        for (game_name, coordinates) in coordinates.iter() {
+            if let Some(game_winners) = winners.get(game_name) {
+                for coordinate in coordinates
+                    .iter()
+                    .map(|x| x.clone())
+                    .collect::<HashSet<Coordinate>>()
+                {
+                    if let Some(amount_won_local) = game_winners.get(&coordinate) {
+                        amount_won += amount_won_local;
+                        games_won.push(game_name.to_string());
+                    }
+                }
+            }
+        }
+
+        EventSummary {
+            event,
+            games_won,
+            amount_won,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct EventSummary {
+    pub event: Event,
+    pub games_won: Vec<String>,
+    pub amount_won: u64,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -144,7 +182,7 @@ pub struct Score {
     nfc: u64,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Coordinate {
     x: u64,
     y: u64,
