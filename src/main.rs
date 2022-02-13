@@ -13,30 +13,43 @@ fn solution(input: &str) {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Board {
     cost_per_square: u64,
-    payout: PayoutBlock,
+    payout: HashMap<PayoutType, Payout>,
     grid: GridBlock,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-enum PayoutBlock {
-    Map(HashMap<String, Payout>),
-    // MapMap(HashMap<String, PayoutBlock>),
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 enum Payout {
     Integer(u32),
-    Map(HashMap<String, u32>),
+    Map(HashMap<Event, u32>),
 }
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 enum GridBlock {
     Grid(Grid),
-    Map(HashMap<String, Grid>),
+    Map(HashMap<Event, Grid>),
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+enum Event {
+    Quarter1,
+    Warning1,
+    Quarter2,
+    Quarter3,
+    Warning2,
+    Quarter4,
+    Final,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+enum PayoutType {
+    DirectHit,
+    ThreeWayTouch,
+    FiveWayTouch,
+    EightWayTouch,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

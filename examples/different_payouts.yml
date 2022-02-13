@@ -1,12 +1,12 @@
 cost_per_square: 5
 payout:
   direct_hit:
-    Quarter1: 400
-    Warning1: 100
-    Quarter2: 400
-    Quarter3: 400
-    Warning2: 100
-    Final: 600
+    quarter1: 400
+    warning1: 100
+    quarter2: 400
+    quarter3: 400
+    warning2: 100
+    final: 600
   three_way_touch: 150
   five_way_touch: 90
   eight_way_touch: 55

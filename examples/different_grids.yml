@@ -5,13 +5,13 @@ payout:
   five_way_touch: 90
   eight_way_touch: 55
 grid:
-  quarter_1:
+  quarter1:
     afc: [1, 8, 9, 0, 3, 6, 4, 2, 5, 7]
     nfc: [8, 6, 9, 3, 0, 4, 7, 1, 5, 2]
-  quarter_2:
+  quarter2:
     afc: [5, 1, 9, 0, 4, 8, 3, 7, 6, 2]
     nfc: [4, 7, 8, 6, 5, 1, 9, 3, 2, 0]
-  quarter_3:
+  quarter3:
     afc: [7, 4, 0, 8, 2, 1, 6, 9, 5, 3]
     nfc: [0, 5, 7, 8, 2, 9, 3, 6, 4, 1]
   final:
