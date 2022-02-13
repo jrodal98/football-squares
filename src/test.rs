@@ -553,8 +553,18 @@ fn test_summarize_multiple_players() {
         },
     ];
 
+    let players_summaries = players_block.summarize_event(&game_block, score, event);
+    assert_eq!(&players_summaries, &expected_player_summary);
+
     assert_eq!(
-        players_block.summarize_event(&game_block, score, event),
-        expected_player_summary
-    );
+        PlayerSummary::winners_only(players_summaries),
+        vec![PlayerSummary {
+            player_name: "jake".to_string(),
+            event_summary: EventSummary {
+                event: Event::Quarter1,
+                games_won: vec!["game1".to_string(), "game3".to_string()],
+                amount_won: 525,
+            },
+        }]
+    )
 }

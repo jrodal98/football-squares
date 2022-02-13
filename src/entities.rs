@@ -50,6 +50,15 @@ pub struct PlayerSummary {
     pub event_summary: EventSummary,
 }
 
+impl PlayerSummary {
+    pub fn winners_only(summaries: Vec<PlayerSummary>) -> Vec<PlayerSummary> {
+        summaries
+            .into_iter()
+            .filter(|player_summary| player_summary.event_summary.amount_won > 0)
+            .collect()
+    }
+}
+
 impl GameBlock {
     pub fn get_winner_values_per_game(
         &self,
