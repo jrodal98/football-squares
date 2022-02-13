@@ -15,6 +15,17 @@ pub struct Game {
     board: BoardBlock,
 }
 
+impl Game {
+    // pub fn calculate_payouts(
+    //     &self,
+    //     score: Score,
+    //     event: Event,
+    //     coordinates: Vec<Coordinate>,
+    // ) -> HashMap<Coordinate, u64> {
+    //     let winners = self.board.get_winners(score, event);
+    // }
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Payout {
@@ -22,11 +33,29 @@ pub enum Payout {
     Map(HashMap<Event, u32>),
 }
 
+impl Payout {
+    fn get_payout(&self, event: Event) -> u32 {
+        match self {
+            Self::Integer(x) => *x,
+            Self::Map(map) => *map.get(&event).unwrap(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BoardBlock {
     Board(Board),
     Map(HashMap<Event, Board>),
+}
+
+impl BoardBlock {
+    pub fn get_winners(&self, score: Score, event: Event) -> Vec<WinningCoordinate> {
+        match self {
+            Self::Board(board) => board.get_winning_coordinates(score),
+            Self::Map(map) => map.get(&event).unwrap().get_winning_coordinates(score),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
@@ -41,7 +70,7 @@ pub enum Event {
     Final,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum PayoutType {
     DirectHit,
@@ -74,32 +103,16 @@ pub struct Score {
     nfc: u64,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Coordinate {
     x: u64,
     y: u64,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct WinningCoordinates {
-    direct_hit: Coordinate,
-    neighbors: Neighbors,
-}
-
-#[derive(Debug, PartialEq, Eq)]
 pub struct Neighbors {
     coordinates: Vec<Coordinate>,
     payout_type: PayoutType,
-}
-
-impl Neighbors {
-    pub fn new(coordinates: Vec<Coordinate>) -> Self {
-        let payout_type = PayoutType::from_n(coordinates.len());
-        Self {
-            coordinates,
-            payout_type,
-        }
-    }
 }
 
 impl Score {
@@ -112,7 +125,7 @@ impl Score {
 }
 
 impl Board {
-    pub fn get_winning_coordinates(&self, score: Score) -> WinningCoordinates {
+    pub fn get_winning_coordinates(&self, score: Score) -> Vec<WinningCoordinate> {
         let x = self
             .afc
             .iter()
@@ -132,11 +145,28 @@ impl Board {
         let direct_hit = Coordinate { x, y };
         let neighbors = direct_hit.get_neighbors();
 
-        WinningCoordinates {
-            direct_hit,
-            neighbors,
-        }
+        let payout_type = PayoutType::from_n(neighbors.len());
+
+        neighbors.into_iter().fold(
+            vec![WinningCoordinate {
+                coordinate: direct_hit,
+                payout_type: PayoutType::DirectHit,
+            }],
+            |mut acc, coordinate| {
+                acc.push(WinningCoordinate {
+                    coordinate,
+                    payout_type: payout_type.clone(),
+                });
+                acc
+            },
+        )
     }
+}
+
+#[derive(Debug)]
+struct WinningCoordinate {
+    coordinate: Coordinate,
+    payout_type: PayoutType,
 }
 
 impl Coordinate {
@@ -147,65 +177,65 @@ impl Coordinate {
         Self { x, y }
     }
 
-    pub fn get_neighbors(&self) -> Neighbors {
+    pub fn get_neighbors(&self) -> Vec<Coordinate> {
         match self {
             // three way touch:
-            Self { x: 0, y: 0 } => Neighbors::new(vec![
+            Self { x: 0, y: 0 } => vec![
                 Self { x: 0, y: 1 },
                 Self { x: 1, y: 0 },
                 Self { x: 1, y: 1 },
-            ]),
+            ],
             // three way touch:
-            Self { x: 0, y: 9 } => Neighbors::new(vec![
+            Self { x: 0, y: 9 } => vec![
                 Self { x: 0, y: 8 },
                 Self { x: 1, y: 8 },
                 Self { x: 1, y: 9 },
-            ]),
+            ],
             // three way touch:
-            Self { x: 9, y: 0 } => Neighbors::new(vec![
+            Self { x: 9, y: 0 } => vec![
                 Self { x: 8, y: 0 },
                 Self { x: 8, y: 1 },
                 Self { x: 9, y: 1 },
-            ]),
+            ],
             // three way touch:
-            Self { x: 9, y: 9 } => Neighbors::new(vec![
+            Self { x: 9, y: 9 } => vec![
                 Self { x: 8, y: 8 },
                 Self { x: 8, y: 9 },
                 Self { x: 9, y: 8 },
-            ]),
+            ],
             // five way touch:
-            Self { x: 0, y } => Neighbors::new(vec![
+            Self { x: 0, y } => vec![
                 Self { x: 0, y: *y - 1 },
                 Self { x: 0, y: *y + 1 },
                 Self { x: 1, y: *y - 1 },
                 Self { x: 1, y: *y },
                 Self { x: 1, y: *y + 1 },
-            ]),
-            Self { x: 9, y } => Neighbors::new(vec![
+            ],
+            Self { x: 9, y } => vec![
                 Self { x: 8, y: *y - 1 },
                 Self { x: 8, y: *y },
                 Self { x: 8, y: *y + 1 },
                 Self { x: 9, y: *y - 1 },
                 Self { x: 9, y: *y + 1 },
-            ]),
+            ],
             // five way touch:
-            Self { x, y: 0 } => Neighbors::new(vec![
+            Self { x, y: 0 } => vec![
                 Self { x: *x - 1, y: 0 },
                 Self { x: *x - 1, y: 1 },
                 Self { x: *x, y: 1 },
                 Self { x: *x + 1, y: 1 },
                 Self { x: *x + 1, y: 0 },
-            ]),
+            ],
             // five way touch:
-            Self { x, y: 9 } => Neighbors::new(vec![
+            Self { x, y: 9 } => vec![
                 Self { x: *x - 1, y: 8 },
                 Self { x: *x - 1, y: 9 },
                 Self { x: *x, y: 8 },
                 Self { x: *x + 1, y: 8 },
                 Self { x: *x + 1, y: 9 },
-            ]),
+            ],
 
-            Self { x, y } => Neighbors::new(vec![
+            Self { x, y } => vec![
                 Self {
                     x: *x - 1,
                     y: *y - 1,
@@ -226,7 +256,7 @@ impl Coordinate {
                     x: *x + 1,
                     y: *y + 1,
                 },
-            ]),
+            ],
         }
     }
 }
