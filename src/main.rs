@@ -5,7 +5,7 @@ use entities::GameBlock;
 
 fn main() {
     // let input = include_str!("../example.yml");
-    let input = include_str!("../examples/different_payouts.yml");
+    let input = include_str!("../examples/complex.yml");
     solution(input);
 }
 

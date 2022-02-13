@@ -1,0 +1,50 @@
+game1:
+  cost_per_square: 5
+  payout:
+    direct_hit: 125
+  board:
+    afc: [0, 8, 9, 6, 3, 2, 5, 1, 4, 7]
+    nfc: [4, 8, 5, 0, 3, 1, 9, 6, 2, 7]
+
+game2:
+  cost_per_square: 10
+  payout:
+    direct_hit: 250
+  board:
+    afc: [0, 6, 4, 8, 2, 3, 5, 7, 1, 9]
+    nfc: [8, 3, 1, 4, 9, 0, 6, 5, 2, 7]
+
+game3:
+  cost_per_square: 20
+  payout:
+    direct_hit:
+      quarter1: 400
+      warning1: 100
+      quarter2: 400
+      quarter3: 400
+      warning2: 100
+      final: 600
+  board:
+    afc: [9, 0, 1, 8, 4, 3, 5, 7, 6, 2]
+    nfc: [8, 4, 6, 9, 3, 0, 7, 1, 5, 2]
+
+game4:
+  cost_per_square: 50
+  payout:
+    direct_hit: 800
+    three_way_touch: 150
+    five_way_touch: 90
+    eight_way_touch: 55
+  board:
+    quarter1:
+      afc: [1, 8, 9, 0, 3, 6, 4, 2, 5, 7]
+      nfc: [8, 6, 9, 3, 0, 4, 7, 1, 5, 2]
+    quarter2:
+      afc: [5, 1, 9, 0, 4, 8, 3, 7, 6, 2]
+      nfc: [4, 7, 8, 6, 5, 1, 9, 3, 2, 0]
+    quarter3:
+      afc: [7, 4, 0, 8, 2, 1, 6, 9, 5, 3]
+      nfc: [0, 5, 7, 8, 2, 9, 3, 6, 4, 1]
+    final:
+      afc: [6, 5, 7, 0, 3, 9, 1, 2, 8, 4]
+      nfc: [7, 4, 1, 2, 3, 9, 0, 5, 8, 6]
