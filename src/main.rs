@@ -11,7 +11,15 @@ fn main() {
     let players_str = include_str!("../examples/multiple_players.yml");
     let players_block = serde_yaml::from_str::<PlayersBlock>(players_str).unwrap();
 
-    let score_events = vec![ScoreEvent::new(Score::new(8, 9), Event::Quarter1)];
+    let score_events = vec![
+        ScoreEvent::new(Score::new(3, 7), Event::Quarter1),
+        ScoreEvent::new(Score::new(10, 13), Event::Warning1),
+        ScoreEvent::new(Score::new(10, 13), Event::Quarter2),
+        ScoreEvent::new(Score::new(20, 16), Event::Quarter3),
+        ScoreEvent::new(Score::new(20, 16), Event::Warning2),
+        ScoreEvent::new(Score::new(20, 23), Event::Quarter4),
+        ScoreEvent::new(Score::new(20, 23), Event::Final),
+    ];
 
     let player_event_summaries = score_events
         .into_iter()

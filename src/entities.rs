@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -59,8 +59,8 @@ impl ScoreEvent {
 #[derive(Debug, PartialEq, Eq)]
 pub struct PlayerGameSummary {
     pub player_name: String,
-    pub winning_events: Vec<Event>,
-    pub winning_games: Vec<String>,
+    pub winning_events: BTreeSet<Event>,
+    pub winning_games: BTreeSet<String>,
     pub amount_won: u64,
 }
 
@@ -68,8 +68,8 @@ impl PlayerGameSummary {
     pub fn new_empty_summary(player_name: String) -> Self {
         Self {
             player_name,
-            winning_events: vec![],
-            winning_games: vec![],
+            winning_events: BTreeSet::new(),
+            winning_games: BTreeSet::new(),
             amount_won: 0,
         }
     }
@@ -94,11 +94,11 @@ impl PlayerGameSummary {
         summaries
     }
 
-    pub fn extend(&mut self, mut player_event_summary: PlayerEventSummary) {
+    pub fn extend(&mut self, player_event_summary: PlayerEventSummary) {
         self.winning_events
-            .push(player_event_summary.event_summary.event);
+            .insert(player_event_summary.event_summary.event);
         self.winning_games
-            .append(&mut player_event_summary.event_summary.games_won);
+            .extend(player_event_summary.event_summary.games_won);
         self.amount_won += player_event_summary.event_summary.amount_won;
     }
 }
@@ -249,7 +249,7 @@ impl BoardBlock {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 pub enum Event {
     Quarter1,
