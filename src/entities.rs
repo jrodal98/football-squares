@@ -361,6 +361,7 @@ pub struct WinningCoordinate {
 }
 
 impl Coordinate {
+    #[allow(dead_code)]
     pub fn new(x: u64, y: u64) -> Self {
         if x > 9 || y > 9 {
             panic!("x and y cannot be greater than 9.")
