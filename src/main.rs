@@ -23,13 +23,14 @@ fn main() {
 
     let player_event_summaries = score_events
         .into_iter()
-        .fold(vec![], |mut acc, score_event| {
-            let mut event_summaries = PlayerEventSummary::winners_only(
-                players_block.summarize_event(&game_block, score_event.score, score_event.event),
-            );
-            acc.append(&mut event_summaries);
-            acc
-        });
+        .flat_map(|score_event| {
+            PlayerEventSummary::winners_only(players_block.summarize_event(
+                &game_block,
+                score_event.score,
+                score_event.event,
+            ))
+        })
+        .collect();
 
     let game_summary = PlayerGameSummary::summarize_player_events(player_event_summaries);
     dbg!(game_summary);
